@@ -1,0 +1,10 @@
+# Agent settings
+agent:
+  alpha_min: 0.001
+  alpha_max: 0.01
+  beta_min: 0.0008
+  beta_max: 0.008
+  gamma_min: 0.95
+  gamma_max: 0.99
+  tau_min: 0.001
+  tau_max: 0.01

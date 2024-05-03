@@ -1,0 +1,65 @@
+# General settings
+base_settings:
+  test_mode: 0
+  n_games: 250
+  render_skip_size: 50
+  avg_lookback: 50
+  dt: 0.25
+  t_max: 2500
+  experiment: 5
+
+# Agent settings
+agent:
+  learning_rate_alpha: 0.005 # Actor lr
+  learning_rate_beta: 0.0003 # Critic lr
+  gamma: 0.99
+  tvn_parameter_modulation_tau: 0.005 # target smoothing coefficient
+  max_size: 1_000_000
+  layer1_size: 256
+  layer2_size: 256
+  batch_size: 1024
+  reward_scale: 10
+
+# Env settings
+boat_env:
+  track_width: 800
+  boat_out_of_bounds_offset: 0
+  goal_line: 3900
+
+# Boat modelling settings
+boat:
+  n_max: 30
+  fuel: 15000
+
+  w: 0.3
+  boat_m: 600
+  boat_m_x: 50
+  boat_m_y: 100
+
+  boat_I: 6_000_000
+  boat_Iz: 10
+
+  propeller_diameter: 1
+  wake_friction: 0.3
+
+  c_r_front: 0.31
+  c_r_side: 2
+  thrust_deduction: 0.3
+
+  rho: 1
+
+  boat_area_front: 20
+  boat_area_side: 90
+  boat_l: 15
+  boat_b: 6
+
+  rudder_area: 10
+  aspect_ratio: 2
+  a: 4.252
+  b: 0.262
+
+# Wind settings
+wind:
+  fixed_points: 8
+  max_velocity: 0.5
+  direction: 90 # 0 forward, 90 upward, 180 backwards, 270 downwards
