@@ -1,12 +1,14 @@
 import os
 import numpy as np
 import csv
+import pygame
 
 from utils.config_reader import get_config, get_experiment_config
 from utils.build_experiment import Experiment
 from environment.boat_env import BoatEnv
 from postprocessing.recorder import Recorder
 from agent.continuous_agent import ContinuousAgent
+from rendering.renderer import RenderBoatEnv
 
 
 class ControlCenter:
@@ -34,6 +36,9 @@ class ControlCenter:
         env = BoatEnv(self.config, self.experiment)
 
         recorder = Recorder(env)
+
+        if int(self.config.pygame.render) == 1:
+            renderer = RenderBoatEnv(self.config)
 
         agent = ContinuousAgent(
             config=self.config,
@@ -67,6 +72,12 @@ class ControlCenter:
                 if not load_checkpoint:
                     agent.learn()
                 observation = observation_
+
+                # Render the environment
+                if int(self.config.pygame.render) == 1:
+                    renderer.set_state(env.return_all_data())
+                    renderer.set_wind(env.boat.get_wind())
+                    renderer.render()
             print(self.info["termination"])
             recorder.write_info_to_csv()
             recorder.write_winds_to_csv()
@@ -81,6 +92,12 @@ class ControlCenter:
             if score > avg_score:
                 if not load_checkpoint:
                     agent.save_models()
+
+            if int(self.config.pygame.render) == 1:
+                # Kill pygame window
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        renderer.close()
 
         if not os.path.exists(self.experiment_overview_file):
             with open(self.experiment_overview_file, "x") as csv_file:

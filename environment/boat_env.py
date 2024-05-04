@@ -1,7 +1,6 @@
 import gymnasium
 import numpy as np
 import torch
-import pygame
 
 from environment.reward_functions import RewardFunction
 from environment.wind import Wind
@@ -9,15 +8,9 @@ from environment.control_theory.blocks import Integrator
 
 
 class BoatEnv(gymnasium.Env):
-    metadata = {"render.modes": ["human"], "render_fps": 30}
-
     def __init__(self, config, experiment=None):
         self.config = config
         self.experiment_dir = experiment.experiment_dir
-        # PyGame window
-        self.render_mode = "human" if self.config.boat_env.render_mode == 1 else None
-        self.window = None
-        self.clock = None
 
         self.action = [0]
         self.reward = 0
@@ -132,32 +125,6 @@ class BoatEnv(gymnasium.Env):
             "n": self.boat.n,
         }
         return data
-
-    def close(self):
-        if self.window is not None:
-            pygame.display.quit()
-            pygame.quit()
-
-    def _render_frame(self):
-        if self.window is None and self.render_mode == "human":
-            pygame.init()
-            pygame.display.init()
-            self.window = pygame.display.set_mode(
-                (self.config.boat_env.goal_line, self.config.boat_env.track_width)
-            )
-        if self.clock is None and self.render_mode == "human":
-            self.clock = pygame.time.Clock()
-
-        canvas = pygame.Surface(
-            (self.config.boat_env.goal_line, self.config.boat_env.track_width)
-        )
-        canvas.fill((255, 255, 255))
-
-        if self.render_mode == "human":
-            self.window.blit(canvas, canvas.get_rect())
-            pygame.event.pump()
-            pygame.display.update()
-            self.clock.tick(self.metadata["render_fps"])
 
 
 class Boat:
@@ -396,6 +363,9 @@ class Boat:
         self.state_return[9] = self.normalize(self.fuel, 0, self.config.boat.fuel)
 
         return self.state_return
+
+    def get_wind(self):
+        return self.wind.get_wind(self.index)
 
     def normalize(self, value, min_value, max_value):
         return (value - min_value) / (max_value - min_value)
