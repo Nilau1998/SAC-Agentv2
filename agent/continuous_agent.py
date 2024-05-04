@@ -5,7 +5,7 @@ from agent.base_agent import BaseAgent
 from agent.networks.networks import ActorNetwork, CriticNetwork, ValueNetwork
 
 
-class ContinousAgent(BaseAgent):
+class ContinuousAgent(BaseAgent):
     def __init__(self, config, experiment_dir, input_dims, env):
         super().__init__(env)
         self.config = config
@@ -55,7 +55,7 @@ class ContinousAgent(BaseAgent):
         self.update_network_parameters(tau=1)
 
     def choose_action(self, observation):
-        state = torch.tensor([observation], dtype=torch.float).to(self.actor.device)
+        state = observation.to(self.actor.device)
         actions, _ = self.actor.sample_normal(state, reparameterize=False)
 
         return actions
@@ -103,14 +103,8 @@ class ContinousAgent(BaseAgent):
             self.batch_size
         )
 
-        reward = torch.tensor(reward, dtype=torch.float).to(self.actor.device)
-        done = torch.tensor(done).to(self.actor.device)
-        state_ = torch.tensor(new_state, dtype=torch.float).to(self.actor.device)
-        state = torch.tensor(state, dtype=torch.float).to(self.actor.device)
-        action = torch.tensor(action, dtype=torch.float).to(self.actor.device)
-
         value = self.value(state).view(-1)
-        value_ = self.target_value(state_).view(-1)
+        value_ = self.target_value(new_state).view(-1)
         value_[done] = 0.0
 
         actions, log_probs = self.actor.sample_normal(state, reparameterize=False)
@@ -122,7 +116,7 @@ class ContinousAgent(BaseAgent):
 
         self.value.optimizer.zero_grad()
         value_target = critic_value - log_probs
-        value_loss = 0.5 * torch.functional.mse_loss(value, value_target)
+        value_loss = 0.5 * torch.nn.functional.mse_loss(value, value_target)
         value_loss.backward(retain_graph=True)
         self.value.optimizer.step()
 
@@ -144,8 +138,8 @@ class ContinousAgent(BaseAgent):
         q_hat = self.scale * reward + self.gamma * value_
         q1_old_policy = self.critic_1.forward(state, action).view(-1)
         q2_old_policy = self.critic_2.forward(state, action).view(-1)
-        critic_1_loss = 0.5 * torch.functional.mse_loss(q1_old_policy, q_hat)
-        critic_2_loss = 0.5 * torch.functional.mse_loss(q2_old_policy, q_hat)
+        critic_1_loss = 0.5 * torch.nn.functional.mse_loss(q1_old_policy, q_hat)
+        critic_2_loss = 0.5 * torch.nn.functional.mse_loss(q2_old_policy, q_hat)
 
         critic_loss = critic_1_loss + critic_2_loss
         critic_loss.backward()

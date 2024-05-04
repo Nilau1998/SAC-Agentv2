@@ -1,7 +1,7 @@
 # General settings
 base_settings:
   test_mode: 0
-  n_games: 250
+  n_games: 5
   render_skip_size: 50
   avg_lookback: 50
   dt: 0.25
@@ -22,6 +22,8 @@ agent:
 
 # Env settings
 boat_env:
+  # 0: None, 1: Human
+  render_mode: 1
   track_width: 800
   boat_out_of_bounds_offset: 0
   goal_line: 3900

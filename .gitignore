@@ -159,3 +159,4 @@ dmypy.json
 
 # Personal settings
 .vscode/
+experiments/
